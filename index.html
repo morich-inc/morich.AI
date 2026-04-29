@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>morich × AI活用事例</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Bebas+Neue&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Barlow+Condensed:wght@700;900&family=Noto+Serif+JP:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --red: #C8253A;
@@ -22,7 +22,7 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'メイリオ', sans-serif;
+    font-family: 'Noto Sans JP', sans-serif;
     background: #fafafa;
     color: var(--black);
     line-height: 1.6;
@@ -68,7 +68,7 @@
   }
 
   .hero-logo {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: clamp(64px, 12vw, 120px);
     letter-spacing: 0.04em;
     line-height: 0.9;
@@ -123,7 +123,7 @@
   }
 
   .hero-count-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 52px;
     color: var(--red);
     line-height: 1;
@@ -153,7 +153,7 @@
   }
 
   .section-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 48px;
     color: var(--red);
     line-height: 1;
@@ -206,7 +206,7 @@
   }
 
   .card-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 64px;
     color: var(--red-light);
     line-height: 1;
@@ -282,7 +282,7 @@
     position: absolute;
     right: -20px;
     bottom: -40px;
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 200px;
     color: rgba(200,37,58,0.08);
     line-height: 1;
@@ -370,7 +370,7 @@
   }
 
   .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
+    font-family: 'Barlow Condensed', sans-serif;
     font-size: 56px;
     color: var(--red);
     line-height: 1;
@@ -592,6 +592,7 @@
     overflow: hidden;
     border: 1px solid #e8e8e8;
     position: relative;
+    cursor: zoom-in;
   }
   .card-screenshot img {
     width: 100%;
@@ -599,23 +600,75 @@
     object-fit: cover;
     object-position: top;
     max-height: 180px;
-    transition: max-height 0.3s ease;
+    transition: opacity 0.2s;
   }
   .card-screenshot:hover img {
-    max-height: 400px;
+    opacity: 0.88;
   }
   .card-screenshot::after {
-    content: '▼ ホバーで拡大';
+    content: '🔍 クリックで拡大';
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(transparent, rgba(200,37,58,0.08));
+    background: linear-gradient(transparent, rgba(200,37,58,0.10));
     font-size: 10px;
     color: var(--red);
     text-align: center;
     padding: 8px 0 4px;
     pointer-events: none;
+  }
+
+  /* ===== MODAL ===== */
+  .img-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    cursor: zoom-out;
+  }
+  .img-modal-overlay.open {
+    display: flex;
+  }
+  .img-modal-inner {
+    position: relative;
+    max-width: 1000px;
+    width: 100%;
+  }
+  .img-modal-inner img,
+  .img-modal-inner canvas {
+    width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
+  }
+  .img-modal-close {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 32px;
+    height: 32px;
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .img-modal-label {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 12px;
+    margin-top: 12px;
   }
 
 </style>
@@ -1068,6 +1121,67 @@
 <footer class="footer">
   <strong>株式会社morich</strong> &nbsp;|&nbsp; AI活用事例まとめ &nbsp;|&nbsp; 2026年4月
 </footer>
+
+
+<!-- IMAGE MODAL -->
+<div class="img-modal-overlay" id="imgModal">
+  <div class="img-modal-inner">
+    <button class="img-modal-close" id="imgModalClose">×</button>
+    <img id="imgModalImg" src="" alt="" style="display:none;">
+    <canvas id="imgModalCanvas" style="display:none;"></canvas>
+    <div class="img-modal-label" id="imgModalLabel"></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var overlay = document.getElementById('imgModal');
+  var modalImg = document.getElementById('imgModalImg');
+  var modalCanvas = document.getElementById('imgModalCanvas');
+  var modalLabel = document.getElementById('imgModalLabel');
+
+  // card-screenshot の img をクリックでモーダル
+  document.querySelectorAll('.card-screenshot img').forEach(function(img) {
+    img.parentElement.addEventListener('click', function() {
+      modalImg.src = img.src;
+      modalImg.alt = img.alt;
+      modalImg.style.display = 'block';
+      modalCanvas.style.display = 'none';
+      modalLabel.textContent = img.alt;
+      overlay.classList.add('open');
+    });
+  });
+
+  // card-screenshot-mosaic の canvas をクリックでモーダル
+  document.querySelectorAll('.card-screenshot-mosaic').forEach(function(wrap) {
+    wrap.style.cursor = 'zoom-in';
+    wrap.addEventListener('click', function() {
+      var src = document.getElementById('salesCanvas');
+      if (!src) return;
+      modalCanvas.width = src.width;
+      modalCanvas.height = src.height;
+      modalCanvas.style.display = 'block';
+      modalImg.style.display = 'none';
+      var ctx = modalCanvas.getContext('2d');
+      ctx.drawImage(src, 0, 0);
+      modalLabel.textContent = '売上管理ダッシュボード（数値モザイク処理済み）';
+      overlay.classList.add('open');
+    });
+  });
+
+  // 閉じる
+  document.getElementById('imgModalClose').addEventListener('click', function(e) {
+    e.stopPropagation();
+    overlay.classList.remove('open');
+  });
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') overlay.classList.remove('open');
+  });
+})();
+</script>
 
 </body>
 </html>
